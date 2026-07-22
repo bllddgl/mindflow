@@ -1,0 +1,40 @@
+# Codemagic build configuration.
+#
+# This file tells Codemagic (a free-tier-friendly cloud build service)
+# exactly how to turn this source code into an installable Android file
+# (.apk), with no local Flutter/Android installation needed on your side.
+#
+# The project only contains `lib/` + `pubspec.yaml` (the Dart/Flutter
+# source) -- the native `android/` platform folder is intentionally NOT
+# included, because it's boilerplate Flutter regenerates automatically.
+# The "Generate platform folders" step below does exactly that, safely,
+# every build, using whatever Flutter version Codemagic has installed --
+# which avoids shipping a hand-written android/ folder that could go out
+# of sync with Codemagic's toolchain.
+workflows:
+  android-workflow:
+    name: MindFlow Android Build
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+    scripts:
+      - name: Generate missing platform folders (android/ios)
+        script: |
+          cd app
+          flutter create --platforms=android --org com.mindflow.app .
+      - name: Apply Android overrides (Open-with support)
+        script: |
+          cd app
+          cp android_overrides/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          cp android_overrides/MainActivity.kt android/app/src/main/kotlin/com/mindflow/app/mindflow/MainActivity.kt
+      - name: Install dependencies
+        script: |
+          cd app
+          flutter pub get
+      - name: Build release APK
+        script: |
+          cd app
+          flutter build apk --release
+    artifacts:
+      - app/build/app/outputs/**/*.apk

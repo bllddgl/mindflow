@@ -1,0 +1,14 @@
+name: reading_engine
+description: >
+  Platform-agnostic RSVP reading engine for MindFlow. Pure Dart, zero
+  Flutter dependency, so the exact same tokenizing/chunking/pacing logic
+  can later run in a browser extension or other non-Flutter host.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^4.0.0

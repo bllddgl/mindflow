@@ -1,0 +1,79 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+      This file OVERWRITES the AndroidManifest.xml that `flutter create`
+      generates during every CI build (see codemagic.yaml), everything
+      here matches Flutter's default template, PLUS the extra
+      <intent-filter> blocks needed so MindFlow shows up as an "Open with"
+      option for TXT/PDF/DOCX/Markdown/HTML files from a file manager or
+      another app's share sheet.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:label="MindFlow"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme" />
+
+            <!-- Default launcher entry -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- "Open with MindFlow" from a file manager, by MIME type -->
+            <intent-filter android:label="Open in MindFlow">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="text/plain"/>
+                <data android:mimeType="application/pdf"/>
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+                <data android:mimeType="text/markdown"/>
+                <data android:mimeType="text/x-markdown"/>
+                <data android:mimeType="text/html"/>
+            </intent-filter>
+
+            <!--
+              Many file managers don't send a precise MIME type; they
+              send a generic "application/octet-stream" and rely on the
+              file extension instead. This second filter catches that
+              case using the URI path pattern. (Two separate <data>
+              matching strategies, both pointing at the same activity;
+              this is a known Android quirk, not a mistake.)
+            -->
+            <intent-filter android:label="Open in MindFlow">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:mimeType="application/octet-stream"/>
+                <data android:pathPattern=".*\\.txt"/>
+                <data android:pathPattern=".*\\.pdf"/>
+                <data android:pathPattern=".*\\.docx"/>
+                <data android:pathPattern=".*\\.md"/>
+                <data android:pathPattern=".*\\.html"/>
+            </intent-filter>
+        </activity>
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>
