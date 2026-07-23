@@ -36,6 +36,18 @@ class LibraryScreen extends ConsumerWidget {
       }
     });
 
+    // A document opened via Android's "Open with MindFlow" (see
+    // `app.dart` + `IncomingFileChannel`) arrives here rather than being
+    // pushed directly from outside the widget tree -- this listener is
+    // what actually navigates to it, using this screen's own, always
+    // properly-mounted `BuildContext`.
+    ref.listen(pendingIncomingDocumentProvider, (previous, next) {
+      if (next != null) {
+        ref.read(pendingIncomingDocumentProvider.notifier).state = null;
+        if (context.mounted) context.push('/reader', extra: next);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(title: Text(AppStrings.t(lang, 'libraryTitle'))),
       floatingActionButton: FloatingActionButton.extended(

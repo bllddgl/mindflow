@@ -33,6 +33,24 @@ void main() {
       expect(chunks[1].blockType, BlockType.paragraph);
     });
 
+    test('never merges words across a block boundary, even between two blocks of the same type', () {
+      final tokenizer = Tokenizer();
+      final chunker = Chunker();
+      final blocks = [
+        const TextBlock(type: BlockType.paragraph, text: 'First paragraph'),
+        const TextBlock(type: BlockType.paragraph, text: 'Second paragraph'),
+      ];
+      final tokens = tokenizer.tokenize(blocks);
+      final chunks = chunker.chunk(tokens, wordsPerGroup: 10);
+
+      // Even though both blocks are `paragraph`, they must produce two
+      // separate chunks (and two separate blockIndex values) -- this is
+      // what "quote the paragraph I'm on" relies on to not scoop up the
+      // entire document.
+      expect(chunks.length, 2);
+      expect(chunks[0].blockIndex, isNot(chunks[1].blockIndex));
+    });
+
     test('images become their own single chunk', () {
       final tokenizer = Tokenizer();
       final chunker = Chunker();

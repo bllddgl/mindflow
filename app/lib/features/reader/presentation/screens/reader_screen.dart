@@ -76,6 +76,17 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final settings = ref.watch(appSettingsProvider);
     final lang = settings.language;
 
+    // Belt-and-suspenders position saving: `dispose()` also saves, but
+    // its write isn't awaited (dispose can't be async) and could be lost
+    // if the app process is killed very quickly after leaving this
+    // screen. Checkpointing periodically while reading means there's
+    // always a recent, safely-written position on disk regardless.
+    ref.listen<RsvpEngineState>(rsvpControllerProvider, (previous, next) {
+      if (previous?.currentIndex != next.currentIndex && next.currentIndex % 5 == 0) {
+        HiveBoxes.progress.put('$_progressKeyPrefix${widget.document.id}', next.currentIndex);
+      }
+    });
+
     final fontSize = settings.fontSize.toDouble() *
         Responsive.value<double>(context, phone: 1.0, tablet: 1.2, desktop: 1.4);
 
@@ -87,6 +98,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             icon: const Icon(Icons.format_quote_outlined),
             tooltip: AppStrings.t(lang, 'quotesTitle'),
             onPressed: () async {
+              ref.read(rsvpControllerProvider.notifier).pause();
               final text = ref.read(rsvpControllerProvider.notifier).currentBlockText();
               if (text.isEmpty) return;
               await ref.read(quoteRepositoryProvider).add(
@@ -99,6 +111,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(AppStrings.t(lang, 'quoteSaved'))));
               }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.article_outlined),
+            tooltip: AppStrings.t(lang, 'viewOriginalText'),
+            onPressed: () {
+              ref.read(rsvpControllerProvider.notifier).pause();
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (_) => _FullTextSheet(document: widget.document, currentChunk: rsvp.currentChunk),
+              );
             },
           ),
           IconButton(
@@ -250,6 +274,86 @@ class _ReaderSettingsSheet extends ConsumerWidget {
         Text(label, style: Theme.of(context).textTheme.labelLarge),
         Slider(value: value.clamp(min, max), min: min, max: max, divisions: divisions, onChanged: onChanged),
       ],
+    );
+  }
+}
+
+/// Shows the whole document as normal, continuously-scrollable text --
+/// "what does this look like as a regular page" -- with the paragraph
+/// the RSVP reader is currently on highlighted and scrolled into view.
+/// Opened via the app bar's document icon; playback is paused first (see
+/// the button's `onPressed` above) so the flashing words don't keep
+/// changing underneath this view.
+class _FullTextSheet extends StatefulWidget {
+  final ReadingDocument document;
+  final WordChunk? currentChunk;
+
+  const _FullTextSheet({required this.document, required this.currentChunk});
+
+  @override
+  State<_FullTextSheet> createState() => _FullTextSheetState();
+}
+
+class _FullTextSheetState extends State<_FullTextSheet> {
+  final _currentBlockKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = _currentBlockKey.currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(context, alignment: 0.3, duration: const Duration(milliseconds: 300));
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentBlockIndex = widget.currentChunk?.blockIndex;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.9,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return ListView.builder(
+          controller: scrollController,
+          padding: const EdgeInsets.all(20),
+          itemCount: widget.document.blocks.length,
+          itemBuilder: (context, index) {
+            final block = widget.document.blocks[index];
+            final isCurrent = index == currentBlockIndex;
+
+            if (block.isImage) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Icon(Icons.image_outlined, size: 48),
+              );
+            }
+            if (block.text.trim().isEmpty) return const SizedBox.shrink();
+
+            return Container(
+              key: isCurrent ? _currentBlockKey : null,
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+              margin: const EdgeInsets.symmetric(vertical: 2),
+              decoration: isCurrent
+                  ? BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    )
+                  : null,
+              child: Text(
+                block.text,
+                style: block.type == BlockType.heading
+                    ? Theme.of(context).textTheme.titleLarge
+                    : Theme.of(context).textTheme.bodyLarge,
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

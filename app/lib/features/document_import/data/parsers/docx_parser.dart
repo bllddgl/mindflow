@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:archive/archive.dart';
 import 'package:reading_engine/reading_engine.dart';
 import 'package:xml/xml.dart';
@@ -29,7 +31,7 @@ class DocxParser implements DocumentParser {
       orElse: () => throw const ParseFailure('Malformed DOCX: word/document.xml not found'),
     );
 
-    final xmlDoc = XmlDocument.parse(String.fromCharCodes(entry.content as List<int>));
+    final xmlDoc = XmlDocument.parse(utf8.decode(entry.content as List<int>, allowMalformed: true));
     final blocks = <TextBlock>[];
 
     for (final p in xmlDoc.findAllElements('p', namespace: _wNs)) {

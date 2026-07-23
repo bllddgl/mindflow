@@ -60,6 +60,7 @@ class Translations {
       'importedOn': 'Imported on',
       'sourceTypeLabel': 'File type',
       'close': 'Close',
+      'viewOriginalText': 'View original text',
     },
     AppLanguage.tr: {
       'appTitle': 'MindFlow',
@@ -109,6 +110,7 @@ class Translations {
       'importedOn': 'İçe aktarılma tarihi',
       'sourceTypeLabel': 'Dosya türü',
       'close': 'Kapat',
+      'viewOriginalText': 'Orijinal metni gör',
     },
     AppLanguage.es: {
       'appTitle': 'MindFlow',
@@ -158,6 +160,7 @@ class Translations {
       'importedOn': 'Importado el',
       'sourceTypeLabel': 'Tipo de archivo',
       'close': 'Cerrar',
+      'viewOriginalText': 'Ver texto original',
     },
     AppLanguage.de: {
       'appTitle': 'MindFlow',
@@ -207,6 +210,7 @@ class Translations {
       'importedOn': 'Importiert am',
       'sourceTypeLabel': 'Dateityp',
       'close': 'Schließen',
+      'viewOriginalText': 'Originaltext anzeigen',
     },
     AppLanguage.fr: {
       'appTitle': 'MindFlow',
@@ -256,6 +260,7 @@ class Translations {
       'importedOn': 'Importé le',
       'sourceTypeLabel': 'Type de fichier',
       'close': 'Fermer',
+      'viewOriginalText': "Voir le texte original",
     },
     AppLanguage.ar: {
       'appTitle': 'MindFlow',
@@ -304,6 +309,7 @@ class Translations {
       'importedOn': 'تاريخ الاستيراد',
       'sourceTypeLabel': 'نوع الملف',
       'close': 'إغلاق',
+      'viewOriginalText': 'عرض النص الأصلي',
     },
   };
 

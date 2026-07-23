@@ -4,15 +4,20 @@ import 'block_type.dart';
 ///
 /// Chunks never span two [TextBlock]s -- a heading's pacing pause and an
 /// image's fixed display duration only make sense if a chunk belongs to
-/// exactly one block. See `Chunker` for how this boundary is enforced.
+/// exactly one block, and so does "quote the paragraph I'm reading"
+/// (see `RsvpController.currentBlockText` on the app side). [blockIndex]
+/// is what makes two consecutive but distinct paragraphs (which usually
+/// share the same [blockType]) distinguishable -- see `Chunker`.
 class WordChunk {
   final List<String> words;
   final BlockType blockType;
+  final int blockIndex;
   final String? imageRef;
 
   const WordChunk({
     required this.words,
     required this.blockType,
+    required this.blockIndex,
     this.imageRef,
   });
 

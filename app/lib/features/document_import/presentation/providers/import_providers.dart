@@ -16,6 +16,16 @@ final importDocumentUseCaseProvider = Provider<ImportDocument>((ref) {
   return ImportDocument(ref.watch(documentRepositoryProvider));
 });
 
+/// Bridges a document opened via Android's "Open with MindFlow" (handled
+/// in `app.dart`, outside any screen's widget tree) over to a document
+/// screen that IS properly mounted inside the router. Navigating directly
+/// from `app.dart` via the raw `GoRouter` object was unreliable -- it
+/// could leave the app in a state where the newly-imported document
+/// wouldn't open until the app was restarted. Having `LibraryScreen`
+/// (always mounted, always the home route) watch this value and navigate
+/// with its own `BuildContext` is the safer, more standard pattern.
+final pendingIncomingDocumentProvider = StateProvider<ReadingDocument?>((ref) => null);
+
 /// Drives "pick a file -> parse -> save" from the Library screen.
 /// `AsyncValue` gives loading/error UI states for free.
 class ImportController extends StateNotifier<AsyncValue<ReadingDocument?>> {

@@ -66,13 +66,11 @@ class RsvpController extends StateNotifier<RsvpEngineState> {
     if (current.isImage) return '';
 
     var start = s.currentIndex;
-    while (start > 0 && s.chunks[start - 1].blockType == current.blockType && !s.chunks[start - 1].isImage) {
+    while (start > 0 && s.chunks[start - 1].blockIndex == current.blockIndex) {
       start--;
     }
     var end = s.currentIndex;
-    while (end < s.chunks.length - 1 &&
-        s.chunks[end + 1].blockType == current.blockType &&
-        !s.chunks[end + 1].isImage) {
+    while (end < s.chunks.length - 1 && s.chunks[end + 1].blockIndex == current.blockIndex) {
       end++;
     }
 

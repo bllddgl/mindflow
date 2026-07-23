@@ -52,7 +52,10 @@ class _MindFlowAppState extends ConsumerState<MindFlowApp> {
           .read(importDocumentUseCaseProvider)
           .call(bytes: file.bytes, fileName: file.fileName);
       ref.invalidate(libraryProvider);
-      ref.read(appRouterProvider).push('/reader', extra: document);
+      // LibraryScreen watches this and navigates itself -- see the
+      // provider's doc comment for why that's more reliable than
+      // pushing directly from here.
+      ref.read(pendingIncomingDocumentProvider.notifier).state = document;
     } catch (_) {
       // Import failures from an external "Open with" launch have nowhere
       // good to surface an error yet (there's no screen open to show a

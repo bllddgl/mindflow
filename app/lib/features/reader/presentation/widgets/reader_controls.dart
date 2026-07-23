@@ -17,7 +17,7 @@ class ReaderControls extends ConsumerWidget {
         IconButton(
           iconSize: 32,
           icon: const Icon(Icons.replay_10),
-          onPressed: state.chunks.isEmpty ? null : () => controller.rewind(steps: 5),
+          onPressed: state.chunks.isEmpty ? null : () => controller.rewind(steps: 10),
         ),
         const SizedBox(width: 12),
         IconButton.filled(
@@ -29,7 +29,7 @@ class ReaderControls extends ConsumerWidget {
         IconButton(
           iconSize: 32,
           icon: const Icon(Icons.forward_10),
-          onPressed: state.chunks.isEmpty ? null : () => controller.forward(steps: 5),
+          onPressed: state.chunks.isEmpty ? null : () => controller.forward(steps: 10),
         ),
       ],
     );
