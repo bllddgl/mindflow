@@ -10,6 +10,7 @@ import 'package:mindflow/features/bookmarks/presentation/widgets/bookmarks_sheet
 import 'package:mindflow/features/document_import/domain/entities/reading_document.dart';
 import 'package:mindflow/features/quotes/presentation/providers/quote_providers.dart';
 import 'package:mindflow/features/reader/presentation/providers/rsvp_controller.dart';
+import 'package:mindflow/features/reader/presentation/screens/original_pdf_view_screen.dart';
 import 'package:mindflow/features/reader/presentation/widgets/progress_seek_bar.dart';
 import 'package:mindflow/features/reader/presentation/widgets/reader_controls.dart';
 import 'package:mindflow/features/reader/presentation/widgets/rsvp_display.dart';
@@ -113,6 +114,20 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               }
             },
           ),
+          if (widget.document.originalFilePath != null)
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf_outlined),
+              tooltip: AppStrings.t(lang, 'viewOriginalPdf'),
+              onPressed: () {
+                ref.read(rsvpControllerProvider.notifier).pause();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => OriginalPdfViewScreen(
+                    filePath: widget.document.originalFilePath!,
+                    title: widget.document.title,
+                  ),
+                ));
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.article_outlined),
             tooltip: AppStrings.t(lang, 'viewOriginalText'),

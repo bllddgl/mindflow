@@ -18,7 +18,7 @@ class AppDatabase {
     final path = p.join(dir.path, 'mindflow.db');
     _db = await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE documents (
@@ -27,7 +27,8 @@ class AppDatabase {
             source_type TEXT NOT NULL,
             imported_at TEXT NOT NULL,
             word_count INTEGER NOT NULL,
-            sort_order INTEGER NOT NULL DEFAULT 0
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            original_file_path TEXT
           )
         ''');
         await db.execute('''
@@ -101,6 +102,9 @@ class AppDatabase {
           for (var i = 0; i < rows.length; i++) {
             await db.update('documents', {'sort_order': i}, where: 'id = ?', whereArgs: [rows[i]['id']]);
           }
+        }
+        if (oldVersion < 4) {
+          await db.execute('ALTER TABLE documents ADD COLUMN original_file_path TEXT');
         }
       },
       onConfigure: (db) async {

@@ -43,9 +43,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     // land safely on the library instead of GoRouter's default
     // "Page Not Found" screen. The actual file import/open still happens
     // separately, via `IncomingFileChannel` in app.dart.
-    errorBuilder: (context, state) => onboardingComplete
-        ? const LibraryScreen()
-        : const OnboardingScreen(),
+    // If GoRouter is ever asked to show a location that matches none of
+    // our routes (this has been observed with Android's "Open with",
+    // which can briefly surface the launching file's raw content:// URI
+    // to Flutter before our own code reacts to it), don't just render a
+    // substitute widget outside the real route tree -- that can leave
+    // the navigator in a state where further navigation silently stops
+    // working. Instead, perform a genuine redirect to a real, properly
+    // registered route, so the router's internal state stays healthy.
+    errorBuilder: (context, state) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          context.go(onboardingComplete ? AppRoutes.library : AppRoutes.onboarding);
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    },
     routes: [
       GoRoute(
         path: AppRoutes.onboarding,

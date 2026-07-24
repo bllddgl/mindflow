@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:reading_engine/reading_engine.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:mindflow/core/storage/app_database.dart';
@@ -16,8 +20,38 @@ class DocumentRepositoryImpl implements DocumentRepository {
   DocumentRepositoryImpl({required this.parserRegistry});
 
   @override
-  Future<ReadingDocument> importFromFile({required List<int> bytes, required String fileName}) {
-    return parserRegistry.parse(bytes: bytes, fileName: fileName);
+  Future<ReadingDocument> importFromFile({required List<int> bytes, required String fileName}) async {
+    final document = await parserRegistry.parse(bytes: bytes, fileName: fileName);
+
+    // Keep a copy of the original bytes for PDFs specifically, so the
+    // reader can offer a "view original pages" mode showing the document
+    // exactly as designed (via a real PDF page renderer), alongside the
+    // RSVP/reflowed-text experience that's this app's main point. Other
+    // formats don't have an equivalent "render exactly as authored"
+    // option available, so there's nothing useful to keep a copy for.
+    if (document.sourceType == DocumentSourceType.pdf) {
+      final path = await _saveOriginalFile(document.id, bytes);
+      return ReadingDocument(
+        id: document.id,
+        title: document.title,
+        sourceType: document.sourceType,
+        blocks: document.blocks,
+        importedAt: document.importedAt,
+        originalFilePath: path,
+      );
+    }
+    return document;
+  }
+
+  Future<String> _saveOriginalFile(String documentId, List<int> bytes) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final originalsDir = Directory(p.join(dir.path, 'original_files'));
+    if (!await originalsDir.exists()) {
+      await originalsDir.create(recursive: true);
+    }
+    final file = File(p.join(originalsDir.path, '$documentId.pdf'));
+    await file.writeAsBytes(bytes);
+    return file.path;
   }
 
   @override
@@ -38,6 +72,7 @@ class DocumentRepositoryImpl implements DocumentRepository {
           'imported_at': document.importedAt.toIso8601String(),
           'word_count': document.wordCount,
           'sort_order': nextOrder,
+          'original_file_path': document.originalFilePath,
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -82,6 +117,7 @@ class DocumentRepositoryImpl implements DocumentRepository {
         blocks: blocks,
         importedAt: DateTime.parse(row['imported_at'] as String),
         sortOrder: row['sort_order'] as int,
+        originalFilePath: row['original_file_path'] as String?,
       ));
     }
     return documents;

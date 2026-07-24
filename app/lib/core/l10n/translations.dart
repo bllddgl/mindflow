@@ -61,6 +61,7 @@ class Translations {
       'sourceTypeLabel': 'File type',
       'close': 'Close',
       'viewOriginalText': 'View original text',
+      'viewOriginalPdf': 'View original PDF pages',
     },
     AppLanguage.tr: {
       'appTitle': 'MindFlow',
@@ -111,6 +112,7 @@ class Translations {
       'sourceTypeLabel': 'Dosya türü',
       'close': 'Kapat',
       'viewOriginalText': 'Orijinal metni gör',
+      'viewOriginalPdf': 'Orijinal PDF sayfalarını gör',
     },
     AppLanguage.es: {
       'appTitle': 'MindFlow',
@@ -161,6 +163,7 @@ class Translations {
       'sourceTypeLabel': 'Tipo de archivo',
       'close': 'Cerrar',
       'viewOriginalText': 'Ver texto original',
+      'viewOriginalPdf': 'Ver páginas originales del PDF',
     },
     AppLanguage.de: {
       'appTitle': 'MindFlow',
@@ -211,6 +214,7 @@ class Translations {
       'sourceTypeLabel': 'Dateityp',
       'close': 'Schließen',
       'viewOriginalText': 'Originaltext anzeigen',
+      'viewOriginalPdf': 'Original-PDF-Seiten anzeigen',
     },
     AppLanguage.fr: {
       'appTitle': 'MindFlow',
@@ -261,6 +265,7 @@ class Translations {
       'sourceTypeLabel': 'Type de fichier',
       'close': 'Fermer',
       'viewOriginalText': "Voir le texte original",
+      'viewOriginalPdf': "Voir les pages PDF originales",
     },
     AppLanguage.ar: {
       'appTitle': 'MindFlow',
@@ -310,6 +315,7 @@ class Translations {
       'sourceTypeLabel': 'نوع الملف',
       'close': 'إغلاق',
       'viewOriginalText': 'عرض النص الأصلي',
+      'viewOriginalPdf': 'عرض صفحات PDF الأصلية',
     },
   };
 

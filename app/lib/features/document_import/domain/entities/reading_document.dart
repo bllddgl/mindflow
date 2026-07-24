@@ -15,6 +15,12 @@ class ReadingDocument {
   final DateTime importedAt;
   final int sortOrder;
 
+  /// Path to a saved copy of the original file, if one was kept (only
+  /// done for PDFs today) -- lets the reader offer a "view original
+  /// pages" mode showing the document exactly as designed, alongside
+  /// the RSVP/reflowed-text experience which is this app's main point.
+  final String? originalFilePath;
+
   const ReadingDocument({
     required this.id,
     required this.title,
@@ -22,6 +28,7 @@ class ReadingDocument {
     required this.blocks,
     required this.importedAt,
     this.sortOrder = 0,
+    this.originalFilePath,
   });
 
   int get wordCount => blocks
